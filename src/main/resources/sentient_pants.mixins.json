@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "survivalblock.sentient_pants.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorItemMixin",
+    "EnchantmentsAccessor",
+    "LivingEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "sentient_pants",
+	"version": "${version}",
+	"name": "Sentient Pants",
+	"description": "Adds the Sentient Pants leggings enchantment, idea by @eightsidedsquare.",
+	"authors": [
+		"Survivalblock"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": "https://github.com/ekulxam/sentient_pants",
+		"issues": "https://github.com/ekulxam/sentient_pants/issues"
+	},
+	"license": "MIT-0",
+	"icon": "assets/sentient_pants/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "survivalblock.sentient_pants.common.SentientPants"
+		],
+		"client": [
+			"survivalblock.sentient_pants.client.SentientPantsClient"
+		],
+		"fabric-datagen": [
+			"survivalblock.sentient_pants.common.datagen.SentientPantsDataGenerator"
+		]
+	},
+	"mixins": [
+		"sentient_pants.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.9",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
