@@ -5,7 +5,6 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import survivalblock.sentient_pants.common.entity.SentientPantsEntity;
 import survivalblock.sentient_pants.common.init.SentientPantsEntityTypes;
 
 public class SentientPants implements ModInitializer {

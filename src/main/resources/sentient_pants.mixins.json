@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "ArmorItemMixin",
-    "EnchantmentsAccessor",
     "LivingEntityMixin"
   ],
   "injectors": {

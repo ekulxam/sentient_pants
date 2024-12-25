@@ -12,6 +12,7 @@ public class SentientPantsDataGenerator implements DataGeneratorEntrypoint {
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
 		pack.addProvider(SentientPantsEnUsLangGenerator::new);
+		pack.addProvider(SentientPantsEnchantmentGenerator::new);
 		pack.addProvider(SentientPantsTagGenerator.SentientPantsEnchantmentTagGenerator::new);
 	}
 
