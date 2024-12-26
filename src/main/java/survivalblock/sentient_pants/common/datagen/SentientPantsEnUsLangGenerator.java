@@ -21,5 +21,8 @@ public class SentientPantsEnUsLangGenerator extends FabricLanguageProvider {
         // enchantment
         translationBuilder.add("enchantment.sentient_pants.sentient_pants", "Sentience (For The Pants)");
         translationBuilder.add("enchantment.sentient_pants.sentient_pants.desc", "On being damaged, the leggings will run off and attack entities. Right-click the pants entity to get the leggings (item) back.");
+
+        // packs
+        translationBuilder.add("dataPack.sentient_pants.sentient_pants_is_a_curse.name", "Sentient Pants - Is a Curse");
     }
 }

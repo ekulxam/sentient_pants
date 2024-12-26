@@ -1,4 +1,5 @@
 {
+  "dataPack.sentient_pants.sentient_pants_is_a_curse.name": "Sentient Pants - Is a Curse",
   "enchantment.sentient_pants.sentient_pants": "Sentience (For The Pants)",
   "enchantment.sentient_pants.sentient_pants.desc": "On being damaged, the leggings will run off and attack entities. Right-click the pants entity to get the leggings (item) back.",
   "entity.sentient_pants.sentient_pants": "Sentient Pants"
