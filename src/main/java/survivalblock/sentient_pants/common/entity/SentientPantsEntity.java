@@ -3,10 +3,13 @@ package survivalblock.sentient_pants.common.entity;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.goal.WanderAroundGoal;
+import net.minecraft.entity.attribute.AttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -17,6 +20,7 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -30,10 +34,20 @@ import survivalblock.sentient_pants.common.entity.goal.SentientPantsAttackGoal;
 import survivalblock.sentient_pants.common.entity.goal.SentientPantsFollowGoal;
 import survivalblock.sentient_pants.common.entity.goal.SentientPantsTrackingGoal;
 import survivalblock.sentient_pants.common.init.SentientPantsEntityTypes;
+import survivalblock.sentient_pants.common.init.SentientPantsGameRules;
+import survivalblock.sentient_pants.mixin.LivingEntityAccessor;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class SentientPantsEntity extends PathAwareEntity implements Ownable {
+
+    public static final DefaultAttributeContainer OVERPOWERED = createPantsAttributes()
+            .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 1.5)
+            .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 10.0)
+            .add(EntityAttributes.GENERIC_ATTACK_KNOCKBACK, 4.0)
+            .add(EntityAttributes.GENERIC_STEP_HEIGHT, 10.0)
+            .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0).build();
 
     @Nullable
     private UUID ownerUuid;
@@ -57,20 +71,14 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
         this.shouldDrop = !(owner instanceof PlayerEntity player) || !player.isCreative();
         this.setPantsStack(stack.copyWithCount(1));
         this.setCustomName(stack.getName());
+        if (!world.isClient() && world.getGameRules().getBoolean(SentientPantsGameRules.STRONGER_PANTS)) {
+            ((LivingEntityAccessor) this).sentient_pants$setAttributes(new AttributeContainer(OVERPOWERED));
+        }
     }
 
     @Override
     public ImmutableList<EntityPose> getPoses() {
-        return ImmutableList.of(EntityPose.STANDING, EntityPose.CROUCHING);
-    }
-
-    @Override
-    public boolean shouldRender(double distance) {
-        double d = super.getBoundingBox().getAverageSideLength();
-        if (Double.isNaN(d)) {
-            d = 1.0;
-        }
-        return distance < (d *= 64.0 * getRenderDistanceMultiplier()) * d;
+        return ImmutableList.of(EntityPose.STANDING, EntityPose.CROUCHING, EntityPose.SITTING);
     }
 
     @Override
@@ -80,6 +88,7 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
 
     public static DefaultAttributeContainer.Builder createPantsAttributes() {
         return MobEntity.createMobAttributes()
+                .add(EntityAttributes.GENERIC_MAX_HEALTH, 100.0)
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4f)
                 .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 4.0)
                 .add(EntityAttributes.GENERIC_ARMOR, 6.0)
@@ -105,15 +114,15 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
     @Override
     public void tick() {
         super.tick();
-        if (!this.getWorld().isClient()) {
+        World world = this.getWorld();
+        if (!world.isClient()) {
             this.equipmentChanges();
             LivingEntity living = this.getTarget();
             if (living != null) {
                 if (living.isRemoved() || !living.isAlive()) {
                     this.setTarget(null);
                 }
-                // yeah I know it's squared, be quiet and let me do my thing
-                if (living.distanceTo(this) < 2) {
+                if (living.squaredDistanceTo(this) < 4) {
                     if (!this.isInSneakingPose()) {
                         this.setPose(EntityPose.CROUCHING);
                     }
@@ -122,6 +131,31 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
                 }
             } else if (this.isInSneakingPose()) {
                 this.setPose(EntityPose.STANDING);
+            }
+            if (this.getTarget() == null && world.getGameRules().getBoolean(SentientPantsGameRules.PANTS_SEEK_OUT_TARGETS) && world.getTime() % 20 == 0) {
+                Entity owner = this.getOwner();
+                if (owner != null && owner.isAlive()) {
+                    Box box = this.getBoundingBox().expand(2, 16, 2);
+                    MobEntity mob = world.getClosestEntity(world.getEntitiesByClass(MobEntity.class, box, mobEntity -> {
+                        if (!mobEntity.isAlive()) {
+                            return false;
+                        }
+                        if (!box.intersects(mobEntity.getBoundingBox())) {
+                            return false;
+                        }
+                        LivingEntity target = mobEntity.getTarget();
+                        if (Objects.equals(owner, target)) {
+                            return true;
+                        }
+                        if (!(target instanceof SentientPantsEntity sentientPants)) {
+                            return false;
+                        }
+                        return Objects.equals(owner, sentientPants.getOwner());
+                    }), TargetPredicate.createAttackable(), null, this.getX(), this.getY(), this.getZ());
+                    if (mob != null) {
+                        this.setTarget(mob);
+                    }
+                }
             }
         }
     }
@@ -154,10 +188,10 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
         final float DIVIDER = 5f;
         maxHealth /= DIVIDER;
         health /= DIVIDER;
-        maxHealth = MathHelper.clamp(maxHealth, 10, 100);
-        health = MathHelper.clamp(health, 10, 100);
+        maxHealth = MathHelper.clamp(maxHealth, 15, 100);
+        health = MathHelper.clamp(health, 20, 100);
         EntityAttributeInstance attributeInstance = this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
-        if (attributeInstance != null) attributeInstance.setBaseValue(Math.max(this.getMaxHealth(), maxHealth));
+        if (attributeInstance != null) attributeInstance.setBaseValue(maxHealth);
         this.setHealth(Math.max(this.getMaxHealth(), Math.max(health, this.getHealth())));
     }
 
@@ -190,7 +224,12 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
 
     @Override
     public boolean tryAttack(Entity target) {
-        return super.tryAttack(target);
+        boolean success = super.tryAttack(target);
+        World world = this.getWorld();
+        if (success && !world.isClient() && world.getGameRules().getBoolean(SentientPantsGameRules.STRONGER_PANTS)) {
+            this.heal(1);
+        }
+        return success;
     }
 
     @Override
@@ -235,8 +274,12 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
         if (this.getWorld().isClient() || !player.getUuid().equals(this.ownerUuid)) {
             return super.interactMob(player, hand);
         }
-        if (!this.isAlive() || !this.shouldDrop) {
+        if (!this.isAlive()) {
             return super.interactMob(player, hand);
+        }
+        if (!this.shouldDrop) {
+            this.discard();
+            return ActionResult.SUCCESS;
         }
         ItemStack stackInHand = player.getStackInHand(hand);
         ItemStack stack = this.getEquippedStack(EquipmentSlot.LEGS);
@@ -258,6 +301,24 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
         if (!shouldDrop) {
             return;
         }
-        this.dropStack(this.getEquippedStack(EquipmentSlot.LEGS).copyWithCount(1));
+        ItemStack pants = this.getEquippedStack(EquipmentSlot.LEGS).copyWithCount(1);
+        if (world.getGameRules().getBoolean(SentientPantsGameRules.RETURN_ON_DEATH)) {
+            Entity owner = this.getOwner();
+            if (owner instanceof PlayerEntity player) {
+                player.getInventory().offerOrDrop(pants);
+                return;
+            }
+        }
+        if (world.getGameRules().getBoolean(SentientPantsGameRules.DROP_PANTS_ON_DEATH)) {
+            this.dropStack(pants);
+        }
+    }
+
+    @Override
+    public double getAttributeValue(RegistryEntry<EntityAttribute> attribute) {
+        if (EntityAttributes.GENERIC_ATTACK_KNOCKBACK.equals(attribute) && this.getWorld().getGameRules().getBoolean(SentientPantsGameRules.NO_KICKING)) {
+            return 0;
+        }
+        return super.getAttributeValue(attribute);
     }
 }

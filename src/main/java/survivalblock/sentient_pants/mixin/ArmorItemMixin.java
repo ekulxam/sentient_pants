@@ -37,6 +37,7 @@ public class ArmorItemMixin {
             world.spawnEntity(new SentientPantsEntity(world, user, stack));
             if (user instanceof ServerPlayerEntity player) {
                 ServerPlayNetworking.send(player, new ItemStackOfUndyingS2CPayload(stack.copyWithCount(1),
+                        player.getId(),
                         new ItemStackOfUndyingS2CPayload.ParticleEffectHolder(true),
                         new ItemStackOfUndyingS2CPayload.SoundEventHolder(true)));
             }

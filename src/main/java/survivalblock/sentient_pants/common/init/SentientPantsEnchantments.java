@@ -9,8 +9,7 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.ItemTags;
-import survivalblock.atmosphere.atmospheric_api.not_mixin.datagen.EnchantmentRegistryEntryLookupContainer;
-import survivalblock.atmosphere.atmospheric_api.not_mixin.datagen.FabricEnchantmentProvider;
+import survivalblock.atmosphere.atmospheric_api.not_mixin.datagen.RegistryEntryLookupContainer;
 import survivalblock.sentient_pants.common.SentientPants;
 
 import java.util.HashMap;
@@ -20,9 +19,9 @@ public class SentientPantsEnchantments {
 
     public static final RegistryKey<Enchantment> SENTIENT_PANTS = RegistryKey.of(RegistryKeys.ENCHANTMENT, SentientPants.id("sentient_pants"));
 
-    public static ImmutableMap<RegistryKey<Enchantment>, Enchantment> asEnchantments(EnchantmentRegistryEntryLookupContainer container) {
+    public static ImmutableMap<RegistryKey<Enchantment>, Enchantment> asEnchantments(RegistryEntryLookupContainer container) {
         Map<RegistryKey<Enchantment>, Enchantment> enchantments = new HashMap<>();
-        RegistryEntryLookup<Item> itemRegistryEntryLookup = container.itemRegistryEntryLookup();
+        RegistryEntryLookup<Item> itemRegistryEntryLookup = container.get(RegistryKeys.ITEM);
         enchantments.put(SENTIENT_PANTS, Enchantment.builder(Enchantment.definition(
                 itemRegistryEntryLookup.getOrThrow(ItemTags.LEG_ARMOR_ENCHANTABLE),
                 1,
@@ -35,7 +34,7 @@ public class SentientPantsEnchantments {
     }
 
     public static void bootstrap(Registerable<Enchantment> registry) {
-        for (Map.Entry<RegistryKey<Enchantment>, Enchantment> entry : asEnchantments(new EnchantmentRegistryEntryLookupContainer(registry)).entrySet()) {
+        for (Map.Entry<RegistryKey<Enchantment>, Enchantment> entry : asEnchantments(new RegistryEntryLookupContainer(registry)).entrySet()) {
             registry.register(entry.getKey(), entry.getValue());
         }
     }

@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.ArmorEntityModel;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import survivalblock.sentient_pants.common.SentientPants;
 
@@ -19,7 +18,7 @@ public class SentientPantsEntityModelLayers {
     }
 
     private static TexturedModelData getDefault() {
-        return TexturedModelData.of(BipedEntityModel.getModelData(Dilation.NONE, 0.0f), 64, 64);
+        return TexturedModelData.of(SentientPantsEntityModel.getModelData(Dilation.NONE, 0.0f), 64, 64);
     }
 
     private static TexturedModelData getInnerArmor() {

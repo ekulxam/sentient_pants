@@ -1,0 +1,16 @@
+Sentient Pants 1.0.2+1.21.1
+- Internal code changes
+- Added the sentient_pants:stronger_pants gamerule
+  - Pants will move faster, deal more damage, and have higher knockback
+  - Pants will heal themselves slightly upon hitting entities
+- Added the sentient_pants:pants_seek_out_targets gamerule
+  - Pants will automatically find entities to target and attack
+  - This may cause lag
+- Added the sentient_pants:return_on_death gamerule
+  - Pants will return to the user's inventory on death
+- Added the sentient_pants:drop_pants_on_death gamerule
+  - This controls whether pants should drop themselves on death. return_on_death takes priority over this.
+- Added the sentient_pants:no_kicking gamerule
+  - Controls whether pants should deal knockback
+- Pants can now sit properly (i.e. when riding entities)
+- Fixed health calculations

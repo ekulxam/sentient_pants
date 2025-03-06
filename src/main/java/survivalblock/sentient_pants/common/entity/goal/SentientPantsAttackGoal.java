@@ -25,7 +25,13 @@ public class SentientPantsAttackGoal extends TrackTargetGoal {
         if (!(entity instanceof LivingEntity living)) {
             return false;
         }
-        this.attacking = living.getAttacking();
+        LivingEntity attacking = living.getAttacking();
+        if (attacking instanceof SentientPantsEntity otherPants) {
+            if (living.equals(otherPants.getOwner())) {
+                return false;
+            }
+        }
+        this.attacking = attacking;
         int i = living.getLastAttackTime();
         return i != this.lastAttackTime && this.canTrack(this.attacking, TargetPredicate.DEFAULT);
     }

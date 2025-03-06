@@ -12,7 +12,11 @@ base {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 	maven { url 'https://jitpack.io' }
+	maven {
+		url "https://maven.terraformersmc.com"
+	}
 }
 
 fabricApi {
@@ -30,7 +34,8 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	include modApi("com.github.ekulxam:AtmosphericAPI:${project.atmospheric_api_tag}")
+	//include modApi("com.github.ekulxam:AtmosphericAPI:${project.atmospheric_api_tag}")
+	include modApi("survivalblock.atmosphere:atmospheric_api:${project.atmospheric_api_tag}")
 }
 
 processResources {

@@ -16,7 +16,7 @@ public class SentientPantsDataGenerator implements DataGeneratorEntrypoint {
 		pack.addProvider(SentientPantsEnUsLangGenerator::new);
 		pack.addProvider(SentientPantsEnchantmentGenerator::new);
 		pack.addProvider(SentientPantsTagGenerator.SentientPantsEnchantmentTagGenerator::new);
-		FabricDataGenerator.Pack curseDatapack = FabricDataPackGenerator.createBuiltinDataPack(fabricDataGenerator, SentientPants.CURSE);
+		FabricDataGenerator.Pack curseDatapack = FabricDataPackGenerator.createBuiltinDataPack(fabricDataGenerator, SentientPants.CURSE_DATAPACK);
 		curseDatapack.addProvider(SentientPantsTagGenerator.SentientPantsCurseTagGenerator::new);
 	}
 
