@@ -60,7 +60,13 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @ModifyExpressionValue(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSource;isIn(Lnet/minecraft/registry/tag/TagKey;)Z", ordinal = 0), slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/entity/LivingEntity;timeUntilRegen:I", opcode = Opcodes.GETFIELD)))
-    private boolean noKnockbackMeansNoCooldown(boolean original){
-        return original || this.getWorld().getGameRules().getBoolean(SentientPantsGameRules.NO_KICKING);
+    private boolean noKnockbackMeansNoCooldown(boolean original, DamageSource source, float amount){
+        if (original) {
+            return true;
+        }
+        if (source.getAttacker() instanceof SentientPantsEntity && source.isDirect()) {
+            return this.getWorld().getGameRules().getBoolean(SentientPantsGameRules.NO_KICKING);
+        }
+        return false;
     }
 }
