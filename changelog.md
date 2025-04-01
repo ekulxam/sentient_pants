@@ -1,2 +1,2 @@
-Sentient Pants 1.0.3+1.21.1
-- Fixed bug where the no kicking gamerule would globally disable damage cooldown for all damage types and entities
+Sentient Pants 1.0.4+1.21.1
+- Pants with names containing the words "among" and "us" will now render specially. This will remain until I get sued by Innersloth or something.

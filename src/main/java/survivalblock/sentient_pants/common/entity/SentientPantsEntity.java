@@ -271,22 +271,27 @@ public class SentientPantsEntity extends PathAwareEntity implements Ownable {
 
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
-        if (this.getWorld().isClient() || !player.getUuid().equals(this.ownerUuid)) {
+        if (!player.getUuid().equals(this.ownerUuid)) {
             return super.interactMob(player, hand);
         }
         if (!this.isAlive()) {
             return super.interactMob(player, hand);
         }
+        final boolean client = this.getWorld().isClient();
         if (!this.shouldDrop) {
-            this.discard();
-            return ActionResult.SUCCESS;
+            if (!client) {
+                this.discard();
+            }
+            return ActionResult.success(client);
         }
         ItemStack stackInHand = player.getStackInHand(hand);
         ItemStack stack = this.getEquippedStack(EquipmentSlot.LEGS);
         if (stackInHand == null || stackInHand.isEmpty()) {
-            player.setStackInHand(hand, stack.copyWithCount(1));
-            this.discard();
-            return ActionResult.SUCCESS;
+            if (!client) {
+                player.setStackInHand(hand, stack.copyWithCount(1));
+                this.discard();
+            }
+            return ActionResult.success(client);
         }
         return super.interactMob(player, hand);
     }
